@@ -2,12 +2,12 @@ swagger: '2.0'
 info:
   version: '1.0'
   title: "Product Management API"
-  description: A comprehensive API for managing products and their details
+  description: Basic API for managing products
   license:
     name: MIT
     url: https://github.com/apiaryio/product-api/blob/master/LICENSE
 host: localhost:8080
-basePath: /api
+basePath: /
 schemes:
 - http
 consumes:
@@ -20,117 +20,28 @@ paths:
       tags:
         - Products
       summary: List All Products
-      description: Retrieve a list of products with optional filtering and pagination
-      parameters:
-        - name: category
-          in: query
-          type: string
-          required: false
-          description: Filter products by category
-        - name: name
-          in: query
-          type: string
-          required: false
-          description: Filter products by name (partial match)
-        - name: minPrice
-          in: query
-          type: number
-          required: false
-          description: Minimum price filter
-        - name: maxPrice
-          in: query
-          type: number
-          required: false
-          description: Maximum price filter
-        - name: limit
-          in: query
-          type: integer
-          required: false
-          default: 20
-          description: Number of items to return
-        - name: offset
-          in: query
-          type: integer
-          required: false
-          default: 0
-          description: Number of items to skip
-        - name: sortBy
-          in: query
-          type: string
-          enum: [name, price, created_at]
-          default: created_at
-          description: Field to sort by
-        - name: order
-          in: query
-          type: string
-          enum: [asc, desc]
-          default: desc
-          description: Sort order
+      description: Retrieve a list of all products
       responses:
         200:
           description: Successful Response
           schema:
-            type: object
-            properties:
-              total:
-                type: integer
-                description: Total number of products matching the filters
-              page:
-                type: integer
-                description: Current page number
-              pageSize:
-                type: integer
-                description: Number of items per page
-              items:
-                type: array
-                items:
-                  $ref: '#/definitions/Product'
+            type: array
+            items:
+              $ref: '#/definitions/Product'
           examples:
             application/json:
-              total: 100
-              page: 1
-              pageSize: 20
-              items:
-                - id: "prod-001"
-                  name: "Premium Headphones"
-                  description: "High-quality wireless headphones"
-                  price: 199.99
-                  category: "Electronics"
-                  sku: "HDPH-001"
-                  inventory: 50
-                  created_at: "2024-03-15T08:40:51.620Z"
-        400:
-          description: Invalid query parameters
-          schema:
-            $ref: '#/definitions/Error'
-    
-    post:
-      tags:
-        - Products
-      summary: Create a New Product
-      description: Add a new product to the catalog
-      parameters:
-        - name: body
-          in: body
-          required: true
-          schema:
-            $ref: '#/definitions/ProductRequest'
-      responses:
-        201:
-          description: Product Created Successfully
-          schema:
-            $ref: '#/definitions/Product'
-        400:
-          description: Invalid Input
-          schema:
-            $ref: '#/definitions/Error'
+              - id: "1"
+                name: "Product 1"
+                price: 199.99
+                description: "Product description"
+                category: "Electronics"
 
   /product/{id}:
     get:
       tags:
         - Products
       summary: Get Product Details
-      description: Retrieve detailed information about a specific product
+      description: Retrieve details of a specific product
       parameters:
         - name: id
           in: path
@@ -142,51 +53,6 @@ paths:
           description: Successful Response
           schema:
             $ref: '#/definitions/Product'
-        404:
-          description: Product Not Found
-          schema:
-            $ref: '#/definitions/Error'
-    
-    put:
-      tags:
-        - Products
-      summary: Update Product
-      description: Update an existing product's information
-      parameters:
-        - name: id
-          in: path
-          required: true
-          type: string
-          description: Product ID
-        - name: body
-          in: body
-          required: true
-          schema:
-            $ref: '#/definitions/ProductRequest'
-      responses:
-        200:
-          description: Product Updated Successfully
-          schema:
-            $ref: '#/definitions/Product'
-        404:
-          description: Product Not Found
-          schema:
-            $ref: '#/definitions/Error'
-    
-    delete:
-      tags:
-        - Products
-      summary: Delete Product
-      description: Remove a product from the catalog
-      parameters:
-        - name: id
-          in: path
-          required: true
-          type: string
-          description: Product ID
-      responses:
-        204:
-          description: Product Deleted Successfully
         404:
           description: Product Not Found
           schema:
@@ -198,13 +64,13 @@ definitions:
     properties:
       id:
         type: string
-        description: Unique identifier for the product
+        description: Product identifier
       name:
         type: string
         description: Product name
       description:
         type: string
-        description: Detailed product description
+        description: Product description
       price:
         type: number
         format: float
@@ -212,113 +78,21 @@ definitions:
       category:
         type: string
         description: Product category
-      sku:
-        type: string
-        description: Stock Keeping Unit
-      inventory:
-        type: integer
-        description: Current stock level
-      created_at:
-        type: string
-        format: date-time
-        description: Creation timestamp
-      updated_at:
-        type: string
-        format: date-time
-        description: Last update timestamp
-      images:
-        type: array
-        items:
-          type: string
-        description: Array of image URLs
-      specifications:
-        type: object
-        description: Technical specifications (flexible schema)
-      status:
-        type: string
-        enum: [active, inactive, discontinued]
-        description: Product status
     required:
       - id
       - name
       - price
       - category
-      - sku
-      - status
-    example:
-      id: "prod-001"
-      name: "Premium Wireless Headphones"
-      description: "High-quality wireless headphones with noise cancellation"
-      price: 199.99
-      category: "Electronics"
-      sku: "HDPH-001"
-      inventory: 50
-      created_at: "2024-03-15T08:40:51.620Z"
-      updated_at: "2024-03-15T08:40:51.620Z"
-      status: "active"
-      specifications:
-        brand: "AudioTech"
-        color: "Black"
-        wireless: true
-        batteryLife: "20 hours"
-
-  ProductRequest:
-    type: object
-    properties:
-      name:
-        type: string
-        minLength: 1
-        maxLength: 100
-      description:
-        type: string
-        maxLength: 1000
-      price:
-        type: number
-        format: float
-        minimum: 0
-      category:
-        type: string
-      sku:
-        type: string
-        pattern: "^[A-Za-z0-9-]+$"
-      inventory:
-        type: integer
-        minimum: 0
-      images:
-        type: array
-        items:
-          type: string
-          format: uri
-      specifications:
-        type: object
-      status:
-        type: string
-        enum: [active, inactive, discontinued]
-    required:
-      - name
-      - price
-      - category
-      - sku
-      - status
 
   Error:
     type: object
     properties:
-      code:
-        type: string
       message:
         type: string
-      details:
-        type: object
     required:
-      - code
       - message
     example:
-      code: "INVALID_INPUT"
-      message: "Invalid product data"
-      details:
-        field: "price"
-        error: "Price must be greater than 0"
+      message: "Product not found"
 
 tags:
   - name: Products
