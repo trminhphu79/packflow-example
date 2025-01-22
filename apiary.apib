@@ -1,108 +1,195 @@
 FORMAT: 1A
-HOST: https://polls.apiblueprint.org/
+HOST: http://localhost:8080/v1
 
-# Tran Minh Phu
+# Product Management API
 
-Polls is a simple API allowing consumers to view polls and vote in them.
+A comprehensive API for managing products, categories, inventory, and product reviews.
 
-## Questions Collection [/questions]
+# Group Products
 
-### List All Questions [GET]
+## Products Collection [/products]
+
+### List All Products [GET]
+
++ Parameters
+    + category (string, optional) - Filter products by category
+    + limit (number, optional) - Number of items to return
+        + Default: 20
+    + offset (number, optional) - Number of items to skip
+        + Default: 0
 
 + Response 200 (application/json)
+    + Attributes
+        + total: 2 (number) - Total number of products
+        + items (array[Product])
 
-        [
-            {
-                "question": "Favourite programming language?",
-                "published_at": "2015-08-05T08:40:51.620Z",
-                "choices": [
-                    {
-                        "choice": "HELLO",
-                        "votes": 2048
-                    }, {
-                        "choice": "HI",
-                        "votes": 1024
-                    }, {
-                        "choice": "C-C",
-                        "votes": 512
-                    }, {
-                        "choice": "D",
-                        "votes": 256
-                    }
-                ]
-            }
-        ]
-
-### Create a New Question [POST]
-
-You may create your own question using this action. It takes a JSON
-object containing a question and a collection of answers in the
-form of choices.
+### Create a New Product [POST]
 
 + Request (application/json)
+    + Attributes (ProductRequest)
 
++ Response 201 (application/json)
+    + Attributes (Product)
+
+## Product [/products/{productId}]
+
++ Parameters
+    + productId (string, required) - ID of the Product
+
+### Get Product Details [GET]
+
++ Response 200 (application/json)
+    + Attributes (Product)
+
++ Response 404 (application/json)
+    + Attributes
+        + message: Product not found
+
+### Update Product [PUT]
+
++ Request (application/json)
+    + Attributes (ProductRequest)
+
++ Response 200 (application/json)
+    + Attributes (Product)
+
+### Delete Product [DELETE]
+
++ Response 204
+
+## Product Reviews [/products/{productId}/reviews]
+
++ Parameters
+    + productId (string, required) - ID of the Product
+
+### List Product Reviews [GET]
+
++ Response 200 (application/json)
+    + Attributes (array[Review])
+
+### Add Product Review [POST]
+
++ Request (application/json)
+    + Attributes (ReviewRequest)
+
++ Response 201 (application/json)
+    + Attributes (Review)
+
+# Group Categories
+
+## Categories Collection [/categories]
+
+### List All Categories [GET]
+
++ Response 200 (application/json)
+    + Attributes (array[Category])
+
+### Create New Category [POST]
+
++ Request (application/json)
+    + Attributes (CategoryRequest)
+
++ Response 201 (application/json)
+    + Attributes (Category)
+
+# Data Structures
+
+## Product
++ id: 123e4567-e89b-12d3-a456-426614174000 (string, required)
++ name: Premium Wireless Headphones (string, required)
++ description: High-quality wireless headphones with noise cancellation (string)
++ price: 199.99 (number, required)
++ category: Electronics (string, required)
++ sku: HDPH-001 (string, required)
++ inventory: 100 (number)
++ created_at: `2024-03-15T08:40:51.620Z` (string)
++ updated_at: `2024-03-15T08:40:51.620Z` (string)
++ images (array[string])
+    + `https://example.com/images/headphones-1.jpg`
++ average_rating: 4.5 (number)
+
+## ProductRequest
++ name: Premium Wireless Headphones (string, required)
++ description: High-quality wireless headphones with noise cancellation (string)
++ price: 199.99 (number, required)
++ category: Electronics (string, required)
++ sku: HDPH-001 (string, required)
++ inventory: 100 (number)
++ images (array[string])
+    + `https://example.com/images/headphones-1.jpg`
+
+## Review
++ id: 123e4567-e89b-12d3-a456-426614174000 (string, required)
++ product_id: 123e4567-e89b-12d3-a456-426614174000 (string, required)
++ user_id: user123 (string, required)
++ rating: 5 (number, required) - Rating between 1 and 5
++ comment: Excellent product! Great sound quality and comfortable to wear. (string)
++ created_at: `2024-03-15T08:40:51.620Z` (string)
+
+## ReviewRequest
++ rating: 5 (number, required) - Rating between 1 and 5
++ comment: Excellent product! Great sound quality and comfortable to wear. (string)
+
+## Category
++ id: cat123 (string, required)
++ name: Electronics (string, required)
++ description: Electronic devices and accessories (string)
++ parent_id: cat100 (string)
++ created_at: `2024-03-15T08:40:51.620Z` (string)
+
+## CategoryRequest
++ name: Electronics (string, required)
++ description: Electronic devices and accessories (string)
++ parent_id: cat100 (string)
+
+# Example Requests and Responses
+
+## Create Product Example
+
++ Request (application/json)
         {
-            "question": "Favourite programming language?",
-            "choices": [
-                "Swift",
-                "Python",
-                "Objective-C",
-                "Ruby"
+            "name": "Premium Wireless Headphones",
+            "description": "High-quality wireless headphones with noise cancellation",
+            "price": 199.99,
+            "category": "Electronics",
+            "sku": "HDPH-001",
+            "inventory": 100,
+            "images": [
+                "https://example.com/images/headphones-1.jpg"
             ]
         }
 
 + Response 201 (application/json)
+        {
+            "id": "123e4567-e89b-12d3-a456-426614174000",
+            "name": "Premium Wireless Headphones",
+            "description": "High-quality wireless headphones with noise cancellation",
+            "price": 199.99,
+            "category": "Electronics",
+            "sku": "HDPH-001",
+            "inventory": 100,
+            "created_at": "2024-03-15T08:40:51.620Z",
+            "updated_at": "2024-03-15T08:40:51.620Z",
+            "images": [
+                "https://example.com/images/headphones-1.jpg"
+            ],
+            "average_rating": 0
+        }
 
-    + Headers
+## Add Review Example
 
-            Location: /questions/2
++ Request (application/json)
+        {
+            "rating": 5,
+            "comment": "Excellent product! Great sound quality and comfortable to wear."
+        }
 
-    + Body
-
-            {
-                "question": "Favourite programming language?",
-                "published_at": "2015-08-05T08:40:51.620Z",
-                "choices": [
-                    {
-                        "choice": "Swift",
-                        "votes": 0
-                    }, {
-                        "choice": "Python",
-                        "votes": 0
-                    }, {
-                        "choice": "Objective-C",
-                        "votes": 0
-                    }, {
-                        "choice": "Ruby",
-                        "votes": 0
-                    }
-                ]
-            }
-            
-
-## Top Repository Star On Github [/questions]
-### Create a Get Collection [GET]
-
-+ Response 200 (application/json)
-
-        [
-            {
-                "question": "The most programming language star on Github?",
-                "published_at": "2015-08-05T08:40:51.620Z",
-                "choices": [
-                    {
-                        "choice": "Angular",
-                        "githubStar": 2048
-                    }, {
-                        "choice": "NodeJs",
-                        "githubStar": 1024
-                    }, {
-                        "choice": "Objective-C",
-                        "githubStar": 512
-                    }, {
-                        "choice": "Ruby",
-                        "githubStar": 256
-                    }
-                ]
-            }
-        ]
++ Response 201 (application/json)
+        {
+            "id": "123e4567-e89b-12d3-a456-426614174000",
+            "product_id": "123e4567-e89b-12d3-a456-426614174000",
+            "user_id": "user123",
+            "rating": 5,
+            "comment": "Excellent product! Great sound quality and comfortable to wear.",
+            "created_at": "2024-03-15T08:40:51.620Z"
+        }
