@@ -1,7 +1,7 @@
 swagger: '2.0'
 info:
-  version: '1.0'
-  title: "Product Management API"
+  version: '1.1'
+  title: "Product Management API Michael Tran"
   description: A comprehensive API for managing products, categories, inventory, and product reviews.
   license:
     name: MIT
