@@ -10,7 +10,8 @@
   },
   "dependencies": {
     "cors": "2.8.5",
-    "express": "5.0.1"
+    "express": "^4.17.1",
+    "body-parser": "^1.19.0"
   },
   "devDependencies": {
     "eslint": "9.12.0",

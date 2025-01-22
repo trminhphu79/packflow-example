@@ -31,12 +31,27 @@ class ProductRepository {
   }
 
   async update(id, productData) {
+    console.log("Updating product with id:", id, "Data:", productData);
+    
     if (!this.products.has(id)) {
+      console.log("Product not found with id:", id);
       return null;
     }
-    const product = new Product(id, productData.type, productData.name, productData.version);
-    this.products.set(id, product);
-    return product;
+
+    try {
+      const product = new Product(
+        id,
+        productData.type,
+        productData.name,
+        productData.version
+      );
+      this.products.set(id, product);
+      console.log("Product updated successfully:", product);
+      return product;
+    } catch (error) {
+      console.error("Error creating product instance:", error);
+      throw error;
+    }
   }
 
   async delete(id) {
