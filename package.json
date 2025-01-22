@@ -7,6 +7,7 @@
     "start": "concurrently \"npm start --prefix consumer\" \"npm start --prefix provider\"",
     "lint": "concurrently \"cd consumer/ && npx eslint .\" \"cd provider/ && npx eslint .\""
   },
+  
   "dependencies": {
     "concurrently": "9.0.1"
   }
