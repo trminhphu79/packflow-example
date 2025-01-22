@@ -38,10 +38,27 @@ paths:
                 type: "CREDIT_CARD" 
                 name: "28 Degrees"
                 version: "v1"
-              - id: "11"
-                type: "PERSONAL_LOAN"
-                name: "MyFlexiPay"
-                version: "v2"
+    
+    post:
+      tags:
+        - Products
+      summary: Create New Product
+      description: Create a new product
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/ProductRequest'
+      responses:
+        201:
+          description: Product Created
+          schema:
+            $ref: '#/definitions/Product'
+        400:
+          description: Invalid Input
+          schema:
+            $ref: '#/definitions/Error'
 
   /product/{id}:
     get:
@@ -60,6 +77,55 @@ paths:
           description: Successful Response
           schema:
             $ref: '#/definitions/Product'
+        404:
+          description: Product Not Found
+          schema:
+            $ref: '#/definitions/Error'
+    
+    put:
+      tags:
+        - Products
+      summary: Update Product
+      description: Update an existing product
+      parameters:
+        - name: id
+          in: path
+          required: true
+          type: string
+          description: Product ID
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/ProductRequest'
+      responses:
+        200:
+          description: Product Updated
+          schema:
+            $ref: '#/definitions/Product'
+        404:
+          description: Product Not Found
+          schema:
+            $ref: '#/definitions/Error'
+        400:
+          description: Invalid Input
+          schema:
+            $ref: '#/definitions/Error'
+    
+    delete:
+      tags:
+        - Products
+      summary: Delete Product
+      description: Delete an existing product
+      parameters:
+        - name: id
+          in: path
+          required: true
+          type: string
+          description: Product ID
+      responses:
+        204:
+          description: Product Deleted
         404:
           description: Product Not Found
           schema:
@@ -91,6 +157,25 @@ definitions:
       id: "09"
       type: "CREDIT_CARD"
       name: "Gem Visa"
+      version: "v1"
+
+  ProductRequest:
+    type: object
+    properties:
+      type:
+        type: string
+        enum: [CREDIT_CARD, PERSONAL_LOAN, MICHAEL_TRAN, DON_HO, HIP]
+      name:
+        type: string
+      version:
+        type: string
+    required:
+      - type
+      - name
+      - version
+    example:
+      type: "CREDIT_CARD"
+      name: "New Card"
       version: "v1"
 
   Error:
