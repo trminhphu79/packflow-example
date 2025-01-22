@@ -1,120 +1,315 @@
 swagger: '2.0'
 info:
   version: '1.0'
-  title: "packflow-example"
-  description: Polls is a simple API allowing consumers to view polls and vote in them.
+  title: "Product Management API"
+  description: A comprehensive API for managing products, categories, inventory, and product reviews.
   license:
     name: MIT
-    url: https://github.com/apiaryio/polls-api/blob/master/LICENSE
-host: polls.apiblueprint.org
-basePath: /
+    url: https://github.com/apiaryio/product-api/blob/master/LICENSE
+host: http://localhost:8080
+basePath: /v1
 schemes:
-- https
+- http
 consumes:
 - application/json
 produces:
 - application/json
 paths:
-  /questions:
-    x-summary: Questions Collection
+  /products:
     get:
-      summary: List All Questions
+      summary: List All Products
+      parameters:
+        - name: category
+          in: query
+          type: string
+          required: false
+          description: Filter products by category
+        - name: limit
+          in: query
+          type: integer
+          required: false
+          default: 20
+          description: Number of items to return
+        - name: offset
+          in: query
+          type: integer
+          required: false
+          default: 0
+          description: Number of items to skip
+      responses:
+        200:
+          description: Successful Response
+          schema:
+            type: object
+            properties:
+              total:
+                type: integer
+              items:
+                type: array
+                items:
+                  $ref: '#/definitions/Product'
+    post:
+      summary: Create a New Product
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/ProductRequest'
+      responses:
+        201:
+          description: Product Created
+          schema:
+            $ref: '#/definitions/Product'
+        400:
+          description: Invalid Input
+        
+  /products/{productId}:
+    get:
+      summary: Get Product Details
+      parameters:
+        - name: productId
+          in: path
+          required: true
+          type: string
+      responses:
+        200:
+          description: Successful Response
+          schema:
+            $ref: '#/definitions/Product'
+        404:
+          description: Product Not Found
+    
+    put:
+      summary: Update Product
+      parameters:
+        - name: productId
+          in: path
+          required: true
+          type: string
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/ProductRequest'
+      responses:
+        200:
+          description: Product Updated
+          schema:
+            $ref: '#/definitions/Product'
+    
+    delete:
+      summary: Delete Product
+      parameters:
+        - name: productId
+          in: path
+          required: true
+          type: string
+      responses:
+        204:
+          description: Product Deleted
+
+  /products/{productId}/reviews:
+    get:
+      summary: Get Product Reviews
+      parameters:
+        - name: productId
+          in: path
+          required: true
+          type: string
       responses:
         200:
           description: Successful Response
           schema:
             type: array
             items:
-              $ref: '#/definitions/Question'
-          examples:
-            application/json:
-              - question: Favourite programming language?
-                published_at: '2015-08-05T08:40:51.620Z'
-                choices:
-                  - choice: Swift
-                    votes: 2048
-                  - choice: Python
-                    votes: 1024
-                  - choice: Objective-C
-                    votes: 512
-                  - choice: Ruby
-                    votes: 256
+              $ref: '#/definitions/Review'
+    
     post:
-      description: >-
-        You may create your own question using this action. It takes a JSON
-        object containing a question and a collection of answers in the
-        form of choices.
-      summary: Create a New Question
+      summary: Add Product Review
+      parameters:
+        - name: productId
+          in: path
+          required: true
+          type: string
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/ReviewRequest'
+      responses:
+        201:
+          description: Review Added
+          schema:
+            $ref: '#/definitions/Review'
+
+  /categories:
+    get:
+      summary: List All Categories
+      responses:
+        200:
+          description: Successful Response
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Category'
+    
+    post:
+      summary: Create New Category
       parameters:
         - name: body
           in: body
           required: true
           schema:
-            $ref: '#/definitions/QuestionRequest'
+            $ref: '#/definitions/CategoryRequest'
       responses:
         201:
-          description: ''
+          description: Category Created
           schema:
-            $ref: '#/definitions/Question'
-          examples:
-            application/json:
-                question: Favourite programming language?
-                published_at: '2015-08-05T08:40:51.620Z'
-                choices:
-                  - choice: Swift
-                    votes: 0
-                  - choice: Python
-                    votes: 0
-                  - choice: Objective-C
-                    votes: 0
-                  - choice: Ruby
-                    votes: 0
+            $ref: '#/definitions/Category'
+
 definitions:
-  Question:
-    title: Question
+  Product:
     type: object
     properties:
-      question:
+      id:
         type: string
-      published_at:
+      name:
         type: string
-      choices:
+      description:
+        type: string
+      price:
+        type: number
+        format: float
+      category:
+        type: string
+      sku:
+        type: string
+      inventory:
+        type: integer
+      created_at:
+        type: string
+        format: date-time
+      updated_at:
+        type: string
+        format: date-time
+      images:
         type: array
         items:
-          $ref: '#/definitions/Choice'
+          type: string
+      average_rating:
+        type: number
+        format: float
     required:
-      - question
-      - published_at
-      - choices
-  Choice:
-    title: Choice
+      - id
+      - name
+      - price
+      - category
+      - sku
+
+  ProductRequest:
     type: object
     properties:
-      votes:
+      name:
+        type: string
+      description:
+        type: string
+      price:
+        type: number
+        format: float
+      category:
+        type: string
+      sku:
+        type: string
+      inventory:
         type: integer
-        format: int32
-      choice:
-        type: string
-    required:
-      - votes
-      - choice
-  QuestionRequest:
-    title: Question Request
-    type: object
-    properties:
-      question:
-        type: string
-      choices:
+      images:
         type: array
         items:
           type: string
     required:
-      - question
-      - choices
+      - name
+      - price
+      - category
+      - sku
     example:
-      question: Favourite programming language?
-      choices:
-        - Swift
-        - Python
-        - Objective-C
-        - Ruby
+      name: "Premium Wireless Headphones"
+      description: "High-quality wireless headphones with noise cancellation"
+      price: 199.99
+      category: "Electronics"
+      sku: "HDPH-001"
+      inventory: 100
+      images: 
+        - "https://example.com/images/headphones-1.jpg"
+
+  Review:
+    type: object
+    properties:
+      id:
+        type: string
+      product_id:
+        type: string
+      user_id:
+        type: string
+      rating:
+        type: integer
+        minimum: 1
+        maximum: 5
+      comment:
+        type: string
+      created_at:
+        type: string
+        format: date-time
+    required:
+      - id
+      - product_id
+      - user_id
+      - rating
+
+  ReviewRequest:
+    type: object
+    properties:
+      rating:
+        type: integer
+        minimum: 1
+        maximum: 5
+      comment:
+        type: string
+    required:
+      - rating
+    example:
+      rating: 5
+      comment: "Excellent product! Great sound quality and comfortable to wear."
+
+  Category:
+    type: object
+    properties:
+      id:
+        type: string
+      name:
+        type: string
+      description:
+        type: string
+      parent_id:
+        type: string
+      created_at:
+        type: string
+        format: date-time
+    required:
+      - id
+      - name
+
+  CategoryRequest:
+    type: object
+    properties:
+      name:
+        type: string
+      description:
+        type: string
+      parent_id:
+        type: string
+    required:
+      - name
+    example:
+      name: "Electronics"
+      description: "Electronic devices and accessories"
